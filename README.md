@@ -1,4 +1,4 @@
-# 📝 TodoList FullStack
+# 📝 Lista de TarefasFullStack
 
 Uma aplicação completa de gerenciamento de tarefas desenvolvida com **Django REST Framework** (backend), **React.js** (frontend) e **PostgreSQL** (banco de dados).
 
