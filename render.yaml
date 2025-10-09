@@ -1,13 +1,13 @@
 services:
-  # Serviço do Banco de Dados (PostgreSQL)
+  # 1. SERVIÇO DO BANCO DE DADOS (POSTGRESQL)
   - type: pserv
-    name: lista_de_tarefas_db
+    name: tododb
     region: oregon
-    plan: free
-    databaseName: lista_de_tarefas_db
+    plan: free 
+    databaseName: lista_de_tarefas_db 
     
-  # Serviço do Backend (Django)
-  - type: web
+  # 2. SERVIÇO DO BACKEND (DJANGO)
+  - type: web 
     name: lista-de-tarefas-api
     env: python
     region: oregon
@@ -18,7 +18,7 @@ services:
       - key: DEBUG
         value: "False"
       - key: SECRET_KEY
-        generateValue: 
+        generateValue: true
       - key: DATABASE_URL
         fromDatabase:
           name: tododb
@@ -30,6 +30,19 @@ services:
           type: web
           name: lista-de-tarefas-api
           property: host
+      - key: REACT_APP_API_URL
+        fromService:
+          type: web
+          name: lista-de-tarefas-api
+          property: url
+
+  # 3. SERVIÇO DO FRONTEND (REACT - Static Site)
+  - type: static
+    name: lista-de-tarefas-frontend
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    publishPath: "frontend/build" 
+    envVars:
       - key: REACT_APP_API_URL
         fromService:
           type: web
