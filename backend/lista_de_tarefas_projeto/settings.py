@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from decouple import config
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -9,9 +10,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='mudar-em-producao')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']  # Adicionar * para desenvolvimento
+# Permite o host do Render (DOMAIN) e o domínio de produção se tiver
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
@@ -60,16 +65,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'lista_de_tarefas_projeto.wsgi.application'
 
+# 2. Configuração do Banco de Dados (Usando DATABASE_URL do Render)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='lista_de_tarefas_db'),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD', default='JulietaeLana1'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
-    }
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL', default=None),
+        conn_max_age=600 
+    )
 }
+# Se o DATABASE_URL não estiver definido, use a configuração local de DB
+if not DATABASES['default']:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST'),
+            'PORT': config('DB_PORT'),
+        }
+    }
+
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -93,11 +109,16 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+# 3. Configuração de Arquivos Estáticos (Static Files)
 
-# Default primary key field type
+# Diretório para onde o `collectstatic` irá mover os arquivos
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+if not DEBUG:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # REST Framework Configuration - CORRIGIDA
 REST_FRAMEWORK = {
@@ -133,8 +154,8 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True  # Apenas para desenvolvimento
-
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = DEBUG 
 # Headers permitidos
 CORS_ALLOW_HEADERS = [
     'accept',
