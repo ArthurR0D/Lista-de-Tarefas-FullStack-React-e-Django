@@ -149,13 +149,13 @@ REST_FRAMEWORK = {
 
 # CORS Configuration - MELHORADA
 CORS_ALLOWED_ORIGINS = [
+    "https://lista-de-tarefas-fullstack-react-e-f7i4.onrender.com",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_ALL_ORIGINS = DEBUG 
+
 # Headers permitidos
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -181,6 +181,7 @@ CORS_ALLOW_METHODS = [
 
 # Configuração de CSRF para desenvolvimento
 CSRF_TRUSTED_ORIGINS = [
+    'https://lista-de-tarefas-fullstack-react-e-f7i4.onrender.com'
     'http://localhost:3000',
     'http://127.0.0.1:3000',
 ]
