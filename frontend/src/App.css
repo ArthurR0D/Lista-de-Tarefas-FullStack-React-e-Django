@@ -169,7 +169,7 @@ body.dark-mode textarea:focus {
 /* Indicador visual para mudança de tema */
 .theme-transition {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-} mode para o body */
+}
 body.dark-mode {
   background-color: #111827;
   color: #f9fafb;
